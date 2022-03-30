@@ -1,5 +1,6 @@
 import re
 import os
+import pprint
 
 inp = 'input.txt'
 
@@ -7,6 +8,7 @@ class decoder():
     def __init__(self, inp):
         self.inp = inp
         self.inp_data = []
+        self.star_dic = {}
 
     def read_inp(self):
         with open(self.inp, 'r') as f:
@@ -14,7 +16,18 @@ class decoder():
 
         [self.inp_data.append(line[:-1]) for line in data]
 
+    def read_block(self):
+        pass
+
+
+    def get_star(self):
+        self.read_inp()
+        for i in range(len(self.inp_data[0])):
+            week_stars = [j[i] for j in self.inp_data]
+            self.star_dic[f'week{i+1}'] = week_stars 
+        pprint.pprint(self.star_dic)
+
 if __name__ == '__main__':
     dc = decoder(inp)
-    dc.read_inp()
-    print(dc.inp_data)
+    dc.get_star()
+
