@@ -2,6 +2,8 @@ import os
 import re
 import subprocess
 import datetime as dt
+from decoder import *
+from pprint import pprint
 
 
 class pattern():
@@ -18,6 +20,7 @@ class pattern():
         self.path_tim = '/home/labbrat/.config/systemd/user'
 
         self.days = ','.join([f'{self.day+i}' for i in range(x)])
+        self.stars = decoder('input.txt').get_star()
 
     def gen_cron(self, show=False):
         tm = f'{self.min+1} {self.hour} {self.days} {self.month} * '
@@ -40,14 +43,23 @@ class pattern():
             srv.write('WantedBy=multi-user.target\n')
             srv.truncate()
 
+    def list_stars(self):
+        self.split_stars = []
+        for s in self.stars:
+            for i in self.stars[s]:
+                self.split_stars.append(i)
+
     def gen_timer(self, show=False):
+        self.list_stars()
         with open(f'{self.path_tim}/committer.timer', 'w') as tmr:
             tmr.write('[Unit]\n')
             tmr.write('Description=autocommiter github project\n')
             tmr.write('Requires=autocommiter.service\n\n')
             tmr.write('[Timer]\n')
             tmr.write('Unit=autocommiter.service\n')
-            tmr.write('OnCalendar=\n\n')
+            for line in self.split_stars:
+                tmr.write(f'OnCalendar={line}\n')
+            tmr.write('\n')
             tmr.write('[Install]\n')
             tmr.write('WantedBy=timers.target\n')
             tmr.truncate()
@@ -63,7 +75,8 @@ class pattern():
 if __name__ == "__main__":
     x = 1
     # pattern(x).mod_timer(show=True)
-    pattern(x).gen_service()
+    # pattern(x).gen_service()
     pattern(x).gen_timer()
+    # pattern(x).list_stars()
 
 
