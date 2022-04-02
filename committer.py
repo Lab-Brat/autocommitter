@@ -9,12 +9,13 @@ class Committer():
     def __init__(self):
         self.x = 1
         self.cmt_range = random.randint(1, 2)
-        self.cron_patt = pattern(self.x).gen_cron()
-        self.sed_patt = pattern(self.x).mod_timer()
+        self.patt = pattern(self.x)
+        self.cron_patt = self.patt.gen_cron()
+        self.sed_patt = self.patt.mod_timer()
 
         self.gucmd = 'git config --list | grep user.name | sed "s/user.name=//g"'
         self.gituser = subprocess.getoutput(self.gucmd)
-        self.git_path = "/home/$USER/autocommitter"
+        self.git_path = "/$HOME/github/autocommitter"
         self.git_comment = "'cmt.sh add entry to tmp_file'"
         self.cmt_cmd = f"git -C {self.git_path} rev-list HEAD \
                          --author={self.gituser} --since '00:00' --count"
@@ -35,9 +36,8 @@ class Committer():
         '''
         add systemd timer
         '''
-        os.system(self.sed_patt)
-        os.system('systemctl --user daemon-reload')
-        logging.log(logging.INFO, "[TIMER MODIFIED]")
+        self.patt.gen_timer()
+        logging.log(logging.INFO, "[TIMER ADDED]")
 
     def mod_tmp(self):
         '''
@@ -63,3 +63,4 @@ class Committer():
 if __name__ == "__main__":
     Committer().add_timer()
     # Committer().commit()
+
