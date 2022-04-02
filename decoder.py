@@ -1,7 +1,7 @@
 import re
 import os
-import pprint
 import datetime
+from pprint import pprint
 
 inp = 'input.txt'
 
@@ -14,10 +14,10 @@ class decoder():
     def read_inp(self):
         with open(self.inp, 'r') as f:
             data = f.readlines()
-
         [self.inp_data.append(line[:-1]) for line in data]
 
     def read_block(self, week_stars, wn):
+        star_count = 0
         commit_days = []
         now = datetime.datetime.now()
         days_til_sunday = 6 - now.weekday()
@@ -25,19 +25,31 @@ class decoder():
             if star == '*':
                 d = days_til_sunday + i + (wn*7)
                 raw = now + datetime.timedelta(days=d)
-                commit_date = f'{raw.year}-{raw.month}-{raw.day}'
-                commit_days.append(commit_date)
+                # check if it's the first commit
+                if star_count == 0:
+                    commit_date = f'{raw.year}-{raw.month}-{raw.day}'
+                elif star_count != 0:
+                    # check if a new year or month has started
+                    if int(commit_date[0:4]) == raw.year and \
+                       int(commit_date[5])   == raw.month:
+                           commit_date += f',{raw.day}'
+                    else:
+                        commit_days.append(commit_date)
+                        commit_date = f'{raw.year}-{raw.month}-{raw.day}'
+                star_count += 1
+        commit_days.append(commit_date) 
         return commit_days
-
 
     def get_star(self):
         self.read_inp()
         for i in range(len(self.inp_data[0])):
             week_stars = [j[i] for j in self.inp_data]
             self.star_dic[f'week{i+1}'] = self.read_block(week_stars, i)
-        pprint.pprint(self.star_dic)
+        return self.star_dic
+
 
 if __name__ == '__main__':
     dc = decoder(inp)
-    dc.get_star()
+    star_dict = dc.get_star()
+    pprint(star_dict)
 
