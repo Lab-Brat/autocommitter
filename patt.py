@@ -23,6 +23,9 @@ class pattern():
         self.stars = decoder('input.txt').get_star()
 
     def gen_cron(self, show=False):
+        '''
+        create an entry to be used in cron
+        '''
         tm = f'{self.min+1} {self.hour} {self.days} {self.month} * '
         cmd = f'/usr/bin/python3 {self.path_cmt} &> /home/lab-brat/cron.log'
         crontab = tm + cmd
@@ -31,6 +34,9 @@ class pattern():
         return crontab
 
     def gen_service(self, show=False):
+        '''
+        create a user systemd service file
+        '''
         os.system(f'mkdir -p {self.path_tim}')
         with open(f'{self.path_tim}/committer.service', 'w') as srv:
             srv.write('[Unit]\n')
@@ -44,12 +50,19 @@ class pattern():
             srv.truncate()
 
     def list_stars(self):
+        '''
+        reads dictionary with date values 
+        and splits everything to separate strings
+        '''
         self.split_stars = []
         for s in self.stars:
             for i in self.stars[s]:
                 self.split_stars.append(i)
 
     def gen_timer(self, show=False):
+        '''
+        create a user systemd timer file
+        '''
         self.list_stars()
         with open(f'{self.path_tim}/committer.timer', 'w') as tmr:
             tmr.write('[Unit]\n')
@@ -58,13 +71,17 @@ class pattern():
             tmr.write('[Timer]\n')
             tmr.write('Unit=autocommiter.service\n')
             for line in self.split_stars:
-                tmr.write(f'OnCalendar={line}\n')
+                tmr.write(f'OnCalendar={line} 12:00:00\n')
             tmr.write('\n')
             tmr.write('[Install]\n')
             tmr.write('WantedBy=timers.target\n')
             tmr.truncate()
 
     def mod_timer(self, show=False):
+        '''
+        generates a sed command to replace 
+        the value of OnCalendar in the timer file
+        '''
         da = f'{self.year}-{self.month}-{self.days} {self.hour}:{self.min+1}:00'
         sed = f'sed -i "s/OnCalendar=.*/OnCalendar={da}/" {self.path_tim}/committer.timer'
 
