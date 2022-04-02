@@ -10,7 +10,7 @@ class Committer():
         self.x = 1
         self.cmt_range = random.randint(1, 2)
         self.cron_patt = pattern(self.x).gen_cron()
-        self.sed_patt = pattern(self.x).gen_timer()
+        self.sed_patt = pattern(self.x).mod_timer()
 
         self.gucmd = 'git config --list | grep user.name | sed "s/user.name=//g"'
         self.gituser = subprocess.getoutput(self.gucmd)
