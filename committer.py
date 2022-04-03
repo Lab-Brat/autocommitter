@@ -7,30 +7,19 @@ from patt import pattern
 
 class Committer():
     def __init__(self):
-        self.x = 1
         self.cmt_range = random.randint(1, 2)
-        self.patt = pattern(self.x)
-        self.cron_patt = self.patt.gen_cron()
+        self.patt = pattern()
         self.sed_patt = self.patt.mod_timer()
 
         self.gucmd = 'git config --list | grep user.name | sed "s/user.name=//g"'
         self.gituser = subprocess.getoutput(self.gucmd)
-        self.git_path = "/$HOME/github/autocommitter"
+        self.git_path = self.patt.repo_path
         self.git_comment = "'cmt.sh add entry to tmp_file'"
         self.cmt_cmd = f"git -C {self.git_path} rev-list HEAD \
                          --author={self.gituser} --since '00:00' --count"
         self.cmt_num = int(subprocess.getoutput(self.cmt_cmd))
 
         logging.basicConfig(level=logging.INFO)
-
-    def add_cron(self):
-        '''
-        pass patt.py generated crontab to users cron
-        '''
-        cmd = f"echo '{self.cron_patt}' | crontab"
-        os.system(cmd)
-        # print(cmd)
-        logging.log(logging.INFO, "[CRONTAB ADDED]")
 
     def add_timer(self):
         '''

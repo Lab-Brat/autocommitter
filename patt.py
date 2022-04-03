@@ -1,14 +1,17 @@
 import os
-import re
-import subprocess
+import configparser
 import datetime as dt
 from decoder import *
 from pprint import pprint
 
-
 class pattern():
-    def __init__(self, x):
-        self.x = x
+    def __init__(self):
+        config = configparser.ConfigParser()
+        config.read('config')
+        self.username = config['USER']['username']
+        self.home_path = config['USER']['home_path']
+        self.repo_path = config['USER']['repo_path']
+
         self.date = str(dt.datetime.now())
         self.year = self.date[0:4]
         self.month = int(self.date[5:7])
@@ -16,22 +19,12 @@ class pattern():
         self.hour = int(self.date[11:13])
         self.min = int(self.date[14:16])
 
-        self.path_cmt = subprocess.getoutput(f'readlink -f cmt.py')
-        self.path_tim = '/home/labbrat/.config/systemd/user'
+        self.path_cmt = f'{self.repo_path}/cmt.py'
+        self.path_tim = f'{self.home_path}/.config/systemd/user'
 
-        self.days = ','.join([f'{self.day+i}' for i in range(x)])
+        self.days = ','.join([f'{self.day+i}' for i in range(1)])
         self.stars = decoder('input.txt').get_star()
 
-    def gen_cron(self, show=False):
-        '''
-        create an entry to be used in cron
-        '''
-        tm = f'{self.min+1} {self.hour} {self.days} {self.month} * '
-        cmd = f'/usr/bin/python3 {self.path_cmt} &> /home/lab-brat/cron.log'
-        crontab = tm + cmd
-        
-        if show == True: print(crontab)
-        return crontab
 
     def gen_service(self, show=False):
         '''
@@ -44,7 +37,7 @@ class pattern():
             srv.write('Wants=autocommiter.timer\n\n')
             srv.write('[Service]\n')
             srv.write('Type=simple\n')
-            srv.write('ExecStart=/home/boink/autocommitter/cmt.py\n\n')
+            srv.write(f'ExecStart={self.path_cmt}\n\n')
             srv.write('[Install]\n')
             srv.write('WantedBy=multi-user.target\n')
             srv.truncate()
@@ -90,10 +83,8 @@ class pattern():
         
 
 if __name__ == "__main__":
-    x = 1
-    # pattern(x).mod_timer(show=True)
-    # pattern(x).gen_service()
-    pattern(x).gen_timer()
-    # pattern(x).list_stars()
-
+    # pattern().mod_timer(show=True)
+    # pattern().gen_service()
+    # pattern().gen_timer()
+    print(pattern().username)
 
