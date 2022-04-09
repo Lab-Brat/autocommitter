@@ -33,13 +33,13 @@ class pattern():
         os.system(f'mkdir -p {self.path_tim}')
         with open(f'{self.path_tim}/committer.service', 'w') as srv:
             srv.write('[Unit]\n')
-            srv.write('Description=autocommiter github project\n')
-            srv.write('Wants=autocommiter.timer\n\n')
+            srv.write('Description=autocommitter github project\n')
+            srv.write('Wants=committer.timer\n\n')
             srv.write('[Service]\n')
             srv.write('Type=simple\n')
             srv.write(f'ExecStart={self.path_cmt}\n\n')
             srv.write('[Install]\n')
-            srv.write('WantedBy=multi-user.target\n')
+            srv.write('WantedBy=default.target\n')
             srv.truncate()
 
     def list_stars(self):
@@ -59,10 +59,10 @@ class pattern():
         self.list_stars()
         with open(f'{self.path_tim}/committer.timer', 'w') as tmr:
             tmr.write('[Unit]\n')
-            tmr.write('Description=autocommiter github project\n')
-            tmr.write('Requires=autocommiter.service\n\n')
+            tmr.write('Description=autocommitter github project\n')
+            tmr.write('Requires=committer.service\n\n')
             tmr.write('[Timer]\n')
-            tmr.write('Unit=autocommiter.service\n')
+            tmr.write('Unit=committer.service\n')
             for line in self.split_stars:
                 tmr.write(f'OnCalendar={line} 12:00:00\n')
             tmr.write('\n')
